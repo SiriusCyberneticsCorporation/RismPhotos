@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Rism_Photos
+namespace RismPhotos
 {
 	static class Program
 	{
@@ -16,7 +16,7 @@ namespace Rism_Photos
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new Form1());
+			Application.Run(new RismPhotosForm());
 		}
 	}
 }
