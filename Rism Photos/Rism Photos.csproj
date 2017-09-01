@@ -38,6 +38,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,7 +51,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataClasses\Folder.cs" />
+    <Compile Include="DataClasses\Photo.cs" />
     <Compile Include="FastDirectoryEnumerator.cs" />
+    <Compile Include="RismExif.cs" />
+    <Compile Include="RismExifEnums.cs" />
+    <Compile Include="ThumbnailPhotoUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ThumbnailPhotoUserControl.Designer.cs">
+      <DependentUpon>ThumbnailPhotoUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResizableTableLayoutPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ResizableTableLayoutPanel.designer.cs">
+      <DependentUpon>ResizableTableLayoutPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="RismPhotosForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -59,6 +75,16 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ThumbnailListViewUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ThumbnailListViewUserControl.Designer.cs">
+      <DependentUpon>ThumbnailListViewUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utility.cs" />
+    <EmbeddedResource Include="ThumbnailPhotoUserControl.resx">
+      <DependentUpon>ThumbnailPhotoUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -71,6 +97,9 @@
     </Compile>
     <EmbeddedResource Include="RismPhotosForm.resx">
       <DependentUpon>RismPhotosForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ThumbnailListViewUserControl.resx">
+      <DependentUpon>ThumbnailListViewUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -88,6 +117,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ImageListView\ImageListView.csproj">
+      <Project>{0C295FB8-C6C6-4A40-9F19-05A43F353A04}</Project>
+      <Name>ImageListView</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
