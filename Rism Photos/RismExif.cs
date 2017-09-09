@@ -7,96 +7,103 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
+using System.Windows.Media.Imaging;
+
+
 namespace RismPhotos
 {
 	public class RismExif
 	{
+
 		#region Public Exif Fields
 
 		/// <summary>
 		/// Orientation of the image.
 		/// </summary>
-		public ExifOrientation Orientation;
+		public ExifOrientation Orientation { get; set; }
 
 		/// <summary>
 		/// The X and Y resolutions of the image, expressed in ResolutionUnit.
 		/// </summary>
-		public double XResolution;
-		public double YResolution;
+		public double XResolution { get; set; }
+		public double YResolution { get; set; }
 
 		/// <summary>
 		/// Resolution unit of the image.
 		/// </summary>
-		public ExifUnit ResolutionUnit;
+		public ExifUnit ResolutionUnit { get; set; }
 
 		/// <summary>
 		/// Date at which the image was taken.
 		/// </summary>
-		public DateTime DateTaken;
+		public DateTime DateTaken { get; set; }
 
 		/// <summary>
 		/// Description of the image.
 		/// </summary>
-		public string Description;
+		public string Description { get; set; }
 		/// <summary>
 		/// Camera manufacturer.
 		/// </summary>
-		public string CameraMake;
+		public string CameraMake { get; set; }
 		/// <summary>
 		/// Camera model.
 		/// </summary>
-		public string CameraModel;
+		public string CameraModel { get; set; }
 		/// <summary>
 		/// Software used to create the image.
 		/// </summary>
-		public string SoftwareUsed;
+		public string SoftwareUsed { get; set; }
 		/// <summary>
 		/// Image artist.
 		/// </summary>
-		public string Artist;
+		public string Artist { get; set; }
 		/// <summary>
 		/// Image copyright.
 		/// </summary>
-		public string Copyright;
+		public string Copyright { get; set; }
 		/// <summary>
 		/// Image user comments.
 		/// </summary>
-		public string UserComment;
+		public string UserComment { get; set; }
 		/// <summary>
 		/// Exposure time, in seconds.
 		/// </summary>
-		public double ExposureTime;
+		public double ExposureTime { get; set; }
 		public string ExposureTimeText { get { return ExposureTime >= 1 ? String.Format("{0} sec.", ExposureTime) : String.Format("1/{0} sec.", (int)1/ExposureTime); } }
 		/// <summary>
 		/// F-number (F-stop) of the camera lens when the image was taken.
 		/// </summary>
-		public double FNumber;
+		public double FNumber { get; set; }
 		public string FNumberText { get { return String.Format("f/{0:g3}", FNumber); } }
 
-		public double FocalLength;
+		public double FocalLength { get; set; }
 		public string FocalLengthText {  get { return FocalLength.ToString("G0") + " mm"; } }
 
-		public Int16 ISO;
+		public Int16 ISO { get; set; }
 		public string ISOText {  get {  return String.Format("ISO-{0}", ISO); } }
 
-		public Int16 MeteringMode;
+		public Int16 MeteringMode { get; set; }
 		public string MeteringModeText {  get { return meteringModeMap.ContainsKey(MeteringMode) ? meteringModeMap[MeteringMode] : meteringModeMap[0]; } }
 
-		public Int16 ExposureProgram;
+		public Int16 ExposureProgram { get; set; }
 		public string ExposureProgramText { get { return ExposureProgramMap.ContainsKey(ExposureProgram) ? ExposureProgramMap[ExposureProgram] : ExposureProgramMap[0]; } }
 		
-		public Int16 WhiteBalance;
+		public Int16 WhiteBalance { get; set; }
 		public string WhiteBalanceText {  get { return WhiteBalanceMap.ContainsKey(WhiteBalance) ? WhiteBalanceMap[WhiteBalance] : WhiteBalanceMap[0]; } }
 
 		/// <summary>
 		/// Flash settings of the camera when the image was taken.
 		/// </summary>
-		public ExifFlash Flash;
+		public ExifFlash Flash { get; set; }
 
 		/// <summary>
 		/// GPS latitude reference (North, South).
 		/// </summary>
-		public ExifGpsLatitudeRef GpsLatitudeRef;
+		public ExifGpsLatitudeRef GpsLatitudeRef { get; set; }
 		/// <summary>
 		/// GPS latitude (degrees, minutes, seconds).
 		/// </summary>
@@ -104,7 +111,7 @@ namespace RismPhotos
 		/// <summary>
 		/// GPS longitude reference (East, West).
 		/// </summary>
-		public ExifGpsLongitudeRef GpsLongitudeRef;
+		public ExifGpsLongitudeRef GpsLongitudeRef { get; set; }
 		/// <summary>
 		/// GPS longitude (degrees, minutes, seconds).
 		/// </summary>
@@ -166,6 +173,100 @@ namespace RismPhotos
 			{ 8, "Landscape mode" }
 		};
 
+		public RismExif()
+		{
+
+		}
+
+		public static void ReadWLPGRegions(string sourceFile)
+		{
+			string microsoftRegions = @"/xmp/RegionInfo/Regions";
+			string microsoftPersonDisplayName = @"/PersonDisplayName";
+			string microsoftRectangle = @"/Rectangle";
+			BitmapCreateOptions createOptions = BitmapCreateOptions.PreservePixelFormat | BitmapCreateOptions.IgnoreColorProfile;
+
+			using (Stream sourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read))
+			{
+				BitmapDecoder sourceDecoder = BitmapDecoder.Create(sourceStream, createOptions, BitmapCacheOption.None);
+
+				// Check source has valid frames
+				if (sourceDecoder.Frames[0] != null && sourceDecoder.Frames[0].Metadata != null)
+				{
+					BitmapMetadata sourceMetadata = sourceDecoder.Frames[0].Metadata as BitmapMetadata;
+
+					// Check there is a RegionInfo
+					if (sourceMetadata.ContainsQuery(microsoftRegions))
+					{
+						BitmapMetadata regionsMetadata = sourceMetadata.GetQuery(microsoftRegions) as BitmapMetadata;
+
+						// Loop through each Region
+						foreach (string regionQuery in regionsMetadata)
+						{
+							string regionFullQuery = microsoftRegions + regionQuery;
+
+							// Query for all the data for this region
+							BitmapMetadata regionMetadata = sourceMetadata.GetQuery(regionFullQuery) as BitmapMetadata;
+
+							if (regionMetadata != null)
+							{
+								if (regionMetadata.ContainsQuery(microsoftPersonDisplayName) &&
+									regionMetadata.ContainsQuery(microsoftRectangle))
+								{
+									Console.WriteLine(regionMetadata.GetQuery(microsoftRectangle).ToString());
+									Console.WriteLine(regionMetadata.GetQuery(microsoftPersonDisplayName).ToString());
+								}
+
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/*
+		public void ReadWLPGRegions1(string sourceFile)
+		{
+			// Declare a bunch of XMP paths (see my last blog for details) 
+			string microsoftRegions = @"/xmp/MP:RegionInfo/MPRI:Regions";
+			string microsoftPersonDisplayName = @"/MPReg:PersonDisplayName";
+			string microsoftRectangle = @"/MPReg:Rectangle";
+			BitmapCreateOptions createOptions = BitmapCreateOptions.PreservePixelFormat | BitmapCreateOptions.IgnoreColorProfile;
+			using (Stream sourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read))
+			{
+				BitmapDecoder sourceDecoder = BitmapDecoder.Create(sourceStream, createOptions, BitmapCacheOption.None);
+				// Check source has valid frames 
+				if (sourceDecoder.Frames[0] != null && sourceDecoder.Frames[0].Metadata != null)
+				{
+					BitmapMetadata sourceMetadata = sourceDecoder.Frames[0].Metadata as BitmapMetadata;
+					// Check there is a RegionInfo 
+					if (sourceMetadata.ContainsQuery(microsoftRegions))
+					{
+						BitmapMetadata regionsMetadata = sourceMetadata.GetQuery(microsoftRegions) as BitmapMetadata;
+						// Loop through each Region 
+						foreach (string regionQuery in regionsMetadata)
+						{
+							string regionFullQuery = microsoftRegions + regionQuery;
+							// Query for all the data for this region 
+							BitmapMetadata regionMetadata = sourceMetadata.GetQuery(regionFullQuery) as BitmapMetadata;
+							if (regionMetadata != null)
+							{
+								if (regionMetadata.ContainsQuery(microsoftPersonDisplayName))
+								{
+									Console.WriteLine("PersonDisplayName:\t"
+									+ regionMetadata.GetQuery(WpfProperties.MicrosoftPersonDisplayName).ToString());
+								}
+								if (regionMetadata.ContainsQuery(microsoftRectangle))
+								{
+									Console.WriteLine("Rectangle:\t\t"
+									+ regionMetadata.GetQuery(WpfProperties.MicrosoftRectangle).ToString());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		*/
 
 		public RismExif(Image sourceImage)
 		{

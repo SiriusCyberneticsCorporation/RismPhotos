@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ThumbnailPhotoUserControl));
 			this.PhotoPictureBox = new System.Windows.Forms.PictureBox();
 			this.PhotoInfoFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
 			this.FilenameLabel = new System.Windows.Forms.Label();
@@ -40,13 +39,13 @@
 			// PhotoPictureBox
 			// 
 			this.PhotoPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.PhotoPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("PhotoPictureBox.Image")));
 			this.PhotoPictureBox.Location = new System.Drawing.Point(3, 3);
 			this.PhotoPictureBox.Name = "PhotoPictureBox";
 			this.PhotoPictureBox.Size = new System.Drawing.Size(144, 104);
 			this.PhotoPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.PhotoPictureBox.TabIndex = 0;
 			this.PhotoPictureBox.TabStop = false;
+			this.PhotoPictureBox.Click += new System.EventHandler(this.PhotoPictureBox_Click);
 			// 
 			// PhotoInfoFlowLayoutPanel
 			// 
@@ -60,6 +59,7 @@
 			this.PhotoInfoFlowLayoutPanel.TabIndex = 1;
 			this.PhotoInfoFlowLayoutPanel.WrapContents = false;
 			this.PhotoInfoFlowLayoutPanel.SizeChanged += new System.EventHandler(this.PhotoInfoFlowLayoutPanel_SizeChanged);
+			this.PhotoInfoFlowLayoutPanel.Click += new System.EventHandler(this.PhotoPictureBox_Click);
 			// 
 			// FilenameLabel
 			// 
@@ -71,6 +71,7 @@
 			this.FilenameLabel.TabIndex = 0;
 			this.FilenameLabel.Text = "label1";
 			this.FilenameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.FilenameLabel.Click += new System.EventHandler(this.PhotoPictureBox_Click);
 			// 
 			// DateTakenLabel
 			// 
@@ -82,6 +83,7 @@
 			this.DateTakenLabel.TabIndex = 1;
 			this.DateTakenLabel.Text = "label2";
 			this.DateTakenLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.DateTakenLabel.Click += new System.EventHandler(this.PhotoPictureBox_Click);
 			// 
 			// ThumbnailPhotoUserControl
 			// 
@@ -93,6 +95,7 @@
 			this.Name = "ThumbnailPhotoUserControl";
 			this.Padding = new System.Windows.Forms.Padding(3);
 			this.Load += new System.EventHandler(this.ThumbnailPhotoUserControl_Load);
+			this.Click += new System.EventHandler(this.PhotoPictureBox_Click);
 			((System.ComponentModel.ISupportInitialize)(this.PhotoPictureBox)).EndInit();
 			this.PhotoInfoFlowLayoutPanel.ResumeLayout(false);
 			this.ResumeLayout(false);

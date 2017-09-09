@@ -27,6 +27,11 @@ namespace RismPhotos
 
 		public RismPhotosForm()
 		{
+			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+			SetStyle(ControlStyles.UserPaint, true);
+			SetStyle(ControlStyles.ResizeRedraw, true);
+
 			InitializeComponent();
 
 			if (Properties.Settings.Default.PhotoDirectories == null)
@@ -37,6 +42,8 @@ namespace RismPhotos
 
 		private void RismPhotosForm_Load(object sender, EventArgs e)
 		{
+			Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
+
 			m_photoDatabase = new LiteDatabase("RismPhotos.db");
 			m_photoFolders = m_photoDatabase.GetCollection<Folder>();
 			m_photos = m_photoDatabase.GetCollection<Photo>();
@@ -63,6 +70,7 @@ namespace RismPhotos
 				{
 					existingPhoto.DateModified = newPhoto.DateModified;
 					existingPhoto.ThumbnailBytes = newPhoto.ThumbnailBytes;
+					existingPhoto.ExifData = newPhoto.ExifData;
 					m_photos.Update(existingPhoto);
 				}
 			}
@@ -242,6 +250,12 @@ namespace RismPhotos
 		private void x256ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			ThumbnailList.ThumbnailSize = new Size(256, 256);
+		}
+
+		private void RismPhotosForm_StyleChanged(object sender, EventArgs e)
+		{
+			//Application.DoEvents();
+
 		}
 	}
 }

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using RismPhotos.DataClasses;
+using System.Threading.Tasks;
 
 namespace RismPhotos
 {
@@ -28,6 +29,11 @@ namespace RismPhotos
 		
 		public ThumbnailListViewUserControl()
 		{
+			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+			SetStyle(ControlStyles.UserPaint, true);
+			SetStyle(ControlStyles.ResizeRedraw, true);
+
 			InitializeComponent();
 		}
 
@@ -102,7 +108,8 @@ namespace RismPhotos
 			{
 				if (m_getThumbnails)
 				{
-					bool allDone = true;					
+					bool allDone = true;
+					
 					foreach (Control iControl in ThumbnailFlowLayoutPanel.Controls)
 					{
 						if (!((ThumbnailPhotoUserControl)iControl).ThumbnailSet)
@@ -119,7 +126,7 @@ namespace RismPhotos
 					{
 						m_getThumbnails = false;
 					}
-					Thread.Sleep(10);
+					Thread.Sleep(100);
 				}
 				else
 				{

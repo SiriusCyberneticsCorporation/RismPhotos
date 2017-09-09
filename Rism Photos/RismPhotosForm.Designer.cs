@@ -35,10 +35,6 @@
 			this.addPhotoFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.PhotosToolStrip = new System.Windows.Forms.ToolStrip();
-			this.TreeViewImageList = new System.Windows.Forms.ImageList(this.components);
-			this.MainResizableTableLayoutPanel = new RismPhotos.ResizableTableLayoutPanel();
-			this.PhotosTreeView = new System.Windows.Forms.TreeView();
-			this.ThumbnailList = new RismPhotos.ThumbnailListViewUserControl();
 			this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
 			this.x24ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.x32ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,6 +43,10 @@
 			this.x96ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.x128ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.x256ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.TreeViewImageList = new System.Windows.Forms.ImageList(this.components);
+			this.MainResizableTableLayoutPanel = new RismPhotos.ResizableTableLayoutPanel();
+			this.PhotosTreeView = new System.Windows.Forms.TreeView();
+			this.ThumbnailList = new RismPhotos.ThumbnailListViewUserControl();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.PhotosMenuStrip.SuspendLayout();
 			this.PhotosToolStrip.SuspendLayout();
@@ -96,6 +96,73 @@
 			this.PhotosToolStrip.TabIndex = 1;
 			this.PhotosToolStrip.Text = "toolStrip1";
 			// 
+			// toolStripDropDownButton1
+			// 
+			this.toolStripDropDownButton1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+			this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.x24ToolStripMenuItem,
+            this.x32ToolStripMenuItem,
+            this.x48ToolStripMenuItem,
+            this.x64ToolStripMenuItem,
+            this.x96ToolStripMenuItem,
+            this.x128ToolStripMenuItem,
+            this.x256ToolStripMenuItem});
+			this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+			this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+			this.toolStripDropDownButton1.Size = new System.Drawing.Size(101, 22);
+			this.toolStripDropDownButton1.Text = "Thumbnail Size";
+			// 
+			// x24ToolStripMenuItem
+			// 
+			this.x24ToolStripMenuItem.Name = "x24ToolStripMenuItem";
+			this.x24ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x24ToolStripMenuItem.Text = "24 x 24";
+			this.x24ToolStripMenuItem.Click += new System.EventHandler(this.x24ToolStripMenuItem_Click);
+			// 
+			// x32ToolStripMenuItem
+			// 
+			this.x32ToolStripMenuItem.Name = "x32ToolStripMenuItem";
+			this.x32ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x32ToolStripMenuItem.Text = "32 x 32";
+			this.x32ToolStripMenuItem.Click += new System.EventHandler(this.x32ToolStripMenuItem_Click);
+			// 
+			// x48ToolStripMenuItem
+			// 
+			this.x48ToolStripMenuItem.Name = "x48ToolStripMenuItem";
+			this.x48ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x48ToolStripMenuItem.Text = "48 x 48";
+			this.x48ToolStripMenuItem.Click += new System.EventHandler(this.x48ToolStripMenuItem_Click);
+			// 
+			// x64ToolStripMenuItem
+			// 
+			this.x64ToolStripMenuItem.Name = "x64ToolStripMenuItem";
+			this.x64ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x64ToolStripMenuItem.Text = "64 x 64";
+			this.x64ToolStripMenuItem.Click += new System.EventHandler(this.x64ToolStripMenuItem_Click);
+			// 
+			// x96ToolStripMenuItem
+			// 
+			this.x96ToolStripMenuItem.Name = "x96ToolStripMenuItem";
+			this.x96ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x96ToolStripMenuItem.Text = "96 x 96";
+			this.x96ToolStripMenuItem.Click += new System.EventHandler(this.x96ToolStripMenuItem_Click);
+			// 
+			// x128ToolStripMenuItem
+			// 
+			this.x128ToolStripMenuItem.Name = "x128ToolStripMenuItem";
+			this.x128ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x128ToolStripMenuItem.Text = "128 x 128";
+			this.x128ToolStripMenuItem.Click += new System.EventHandler(this.x128ToolStripMenuItem_Click);
+			// 
+			// x256ToolStripMenuItem
+			// 
+			this.x256ToolStripMenuItem.Name = "x256ToolStripMenuItem";
+			this.x256ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x256ToolStripMenuItem.Text = "256 x 256";
+			this.x256ToolStripMenuItem.Click += new System.EventHandler(this.x256ToolStripMenuItem_Click);
+			// 
 			// TreeViewImageList
 			// 
 			this.TreeViewImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("TreeViewImageList.ImageStream")));
@@ -125,6 +192,7 @@
 			// PhotosTreeView
 			// 
 			this.PhotosTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.PhotosTreeView.HideSelection = false;
 			this.PhotosTreeView.ImageIndex = 0;
 			this.PhotosTreeView.ImageList = this.TreeViewImageList;
 			this.PhotosTreeView.Location = new System.Drawing.Point(3, 3);
@@ -145,73 +213,6 @@
 			this.ThumbnailList.Size = new System.Drawing.Size(551, 467);
 			this.ThumbnailList.TabIndex = 3;
 			this.ThumbnailList.ThumbnailSize = new System.Drawing.Size(96, 96);
-			// 
-			// toolStripDropDownButton1
-			// 
-			this.toolStripDropDownButton1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-			this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.x24ToolStripMenuItem,
-            this.x32ToolStripMenuItem,
-            this.x48ToolStripMenuItem,
-            this.x64ToolStripMenuItem,
-            this.x96ToolStripMenuItem,
-            this.x128ToolStripMenuItem,
-            this.x256ToolStripMenuItem});
-			this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
-			this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-			this.toolStripDropDownButton1.Size = new System.Drawing.Size(101, 22);
-			this.toolStripDropDownButton1.Text = "Thumbnail Size";
-			// 
-			// x24ToolStripMenuItem
-			// 
-			this.x24ToolStripMenuItem.Name = "x24ToolStripMenuItem";
-			this.x24ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x24ToolStripMenuItem.Text = "24 x 24";
-			this.x24ToolStripMenuItem.Click += new System.EventHandler(this.x24ToolStripMenuItem_Click);
-			// 
-			// x32ToolStripMenuItem
-			// 
-			this.x32ToolStripMenuItem.Name = "x32ToolStripMenuItem";
-			this.x32ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x32ToolStripMenuItem.Text = "32 x 32";
-			this.x32ToolStripMenuItem.Click += new System.EventHandler(this.x32ToolStripMenuItem_Click);
-			// 
-			// x48ToolStripMenuItem
-			// 
-			this.x48ToolStripMenuItem.Name = "x48ToolStripMenuItem";
-			this.x48ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x48ToolStripMenuItem.Text = "48 x 48";
-			this.x48ToolStripMenuItem.Click += new System.EventHandler(this.x48ToolStripMenuItem_Click);
-			// 
-			// x64ToolStripMenuItem
-			// 
-			this.x64ToolStripMenuItem.Name = "x64ToolStripMenuItem";
-			this.x64ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x64ToolStripMenuItem.Text = "64 x 64";
-			this.x64ToolStripMenuItem.Click += new System.EventHandler(this.x64ToolStripMenuItem_Click);
-			// 
-			// x96ToolStripMenuItem
-			// 
-			this.x96ToolStripMenuItem.Name = "x96ToolStripMenuItem";
-			this.x96ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x96ToolStripMenuItem.Text = "96 x 96";
-			this.x96ToolStripMenuItem.Click += new System.EventHandler(this.x96ToolStripMenuItem_Click);
-			// 
-			// x128ToolStripMenuItem
-			// 
-			this.x128ToolStripMenuItem.Name = "x128ToolStripMenuItem";
-			this.x128ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x128ToolStripMenuItem.Text = "128 x 128";
-			this.x128ToolStripMenuItem.Click += new System.EventHandler(this.x128ToolStripMenuItem_Click);
-			// 
-			// x256ToolStripMenuItem
-			// 
-			this.x256ToolStripMenuItem.Name = "x256ToolStripMenuItem";
-			this.x256ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.x256ToolStripMenuItem.Text = "256 x 256";
-			this.x256ToolStripMenuItem.Click += new System.EventHandler(this.x256ToolStripMenuItem_Click);
 			// 
 			// panel1
 			// 
@@ -235,6 +236,7 @@
 			this.Name = "RismPhotosForm";
 			this.Text = "Rism Photos";
 			this.Load += new System.EventHandler(this.RismPhotosForm_Load);
+			this.StyleChanged += new System.EventHandler(this.RismPhotosForm_StyleChanged);
 			this.PhotosMenuStrip.ResumeLayout(false);
 			this.PhotosMenuStrip.PerformLayout();
 			this.PhotosToolStrip.ResumeLayout(false);

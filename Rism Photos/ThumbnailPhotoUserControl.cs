@@ -67,13 +67,15 @@ namespace RismPhotos
 		public Photo FetchThumbnail()
 		{
 			byte[] imageBytes;
-			PhotoPictureBox.Image = Utility.ThumbnailFromFile(m_photoFile.Path, InternalThumbnailSize, out imageBytes);
+			RismExif exifData;
+			PhotoPictureBox.Image = Utility.ThumbnailFromFile(m_photoFile.Path, InternalThumbnailSize, out imageBytes, out exifData);
 			ThumbnailSet = true;
 
 			m_photo = new Photo();
 			m_photo.DateModified = m_photoFile.LastWriteTime;
 			m_photo.Filename = m_photoFile.Path;
 			m_photo.ThumbnailBytes = imageBytes;
+			m_photo.ExifData = exifData;
 
 			return m_photo;
 		}
@@ -96,6 +98,11 @@ namespace RismPhotos
 		private void SetSize()
 		{
 			this.Size = new Size(m_thumbnailSize.Width + 6, m_thumbnailSize.Height + 50);
+		}
+
+		private void PhotoPictureBox_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

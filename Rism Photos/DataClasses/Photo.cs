@@ -13,5 +13,6 @@ namespace RismPhotos.DataClasses
 		public string Filename { get; set; }
 		public DateTime DateModified { get; set; }
 		public byte[] ThumbnailBytes { get; set; }
+		public RismExif ExifData { get; set; }
 	}
 }
