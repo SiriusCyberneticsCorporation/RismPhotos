@@ -67,7 +67,7 @@ namespace RismPhotos
 		public Photo FetchThumbnail()
 		{
 			byte[] imageBytes;
-			RismExif exifData;
+			PhotoMetadata exifData;
 			PhotoPictureBox.Image = Utility.ThumbnailFromFile(m_photoFile.Path, InternalThumbnailSize, out imageBytes, out exifData);
 			ThumbnailSet = true;
 
@@ -75,7 +75,7 @@ namespace RismPhotos
 			m_photo.DateModified = m_photoFile.LastWriteTime;
 			m_photo.Filename = m_photoFile.Path;
 			m_photo.ThumbnailBytes = imageBytes;
-			m_photo.ExifData = exifData;
+			m_photo.Metadata = exifData;
 
 			return m_photo;
 		}

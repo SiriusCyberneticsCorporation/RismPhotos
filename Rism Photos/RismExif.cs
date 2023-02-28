@@ -41,6 +41,10 @@ namespace RismPhotos
 		/// </summary>
 		public DateTime DateTaken { get; set; }
 
+		public string ApplicationName;
+
+		public string Location;
+
 		/// <summary>
 		/// Description of the image.
 		/// </summary>
@@ -69,6 +73,9 @@ namespace RismPhotos
 		/// Image user comments.
 		/// </summary>
 		public string UserComment { get; set; }
+
+		public int Rating;
+
 		/// <summary>
 		/// Exposure time, in seconds.
 		/// </summary>
@@ -116,6 +123,11 @@ namespace RismPhotos
 		/// GPS longitude (degrees, minutes, seconds).
 		/// </summary>
 		public double[] GpsLongitude = new double[3];
+
+		public string Title { get; set; }
+		public string Subject { get; set; }
+		public List<string> Keywords { get; set; }
+		public List<RismPerson> People { get; set; }
 
 		#endregion Public Exif Fields
 
@@ -177,22 +189,56 @@ namespace RismPhotos
 		{
 
 		}
-
-		public static void ReadWLPGRegions(string sourceFile)
+		
+		public RismExif(string filename)
 		{
 			string microsoftRegions = @"/xmp/RegionInfo/Regions";
 			string microsoftPersonDisplayName = @"/PersonDisplayName";
 			string microsoftRectangle = @"/Rectangle";
-			BitmapCreateOptions createOptions = BitmapCreateOptions.PreservePixelFormat | BitmapCreateOptions.IgnoreColorProfile;
+			//BitmapCreateOptions createOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.IgnoreColorProfile;
 
-			using (Stream sourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read))
+			using (Stream sourceStream = File.Open(filename, FileMode.Open, FileAccess.Read))
 			{
-				BitmapDecoder sourceDecoder = BitmapDecoder.Create(sourceStream, createOptions, BitmapCacheOption.None);
+				BitmapDecoder sourceDecoder = BitmapDecoder.Create(sourceStream, BitmapCreateOptions.None/*createOptions*/, BitmapCacheOption.None);
 
 				// Check source has valid frames
 				if (sourceDecoder.Frames[0] != null && sourceDecoder.Frames[0].Metadata != null)
 				{
 					BitmapMetadata sourceMetadata = sourceDecoder.Frames[0].Metadata as BitmapMetadata;
+
+					Title = sourceMetadata.Title;
+					Subject = sourceMetadata.Subject;
+					if (sourceMetadata.Author != null && sourceMetadata.Author[0] != null)
+					{
+						Artist = sourceMetadata.Author[0];
+					}
+					Copyright = sourceMetadata.Copyright;
+					if (sourceMetadata.Keywords != null)
+					{
+						Keywords = sourceMetadata.Keywords.ToList();
+					}
+					DateTaken = Convert.ToDateTime(sourceMetadata.DateTaken);
+					CameraMake = sourceMetadata.CameraManufacturer;
+					CameraModel = sourceMetadata.CameraModel;
+					SoftwareUsed = sourceMetadata.ApplicationName;
+					Rating = sourceMetadata.Rating;
+					Location = sourceMetadata.Location;
+					
+					Orientation = Utility.NumberToEnum<ExifOrientation>(Convert.ToInt16(sourceMetadata.GetQuery(@"System.Photo.Orientation")));
+					XResolution = sourceDecoder.Frames[0].PixelWidth;
+					YResolution = sourceDecoder.Frames[0].PixelHeight;
+					//ResolutionUnit = GetResolutionUnit(Property(PropertyTagId.PropertyTagResolutionUnit));
+					//UserComment = GetString(Property(PropertyTagId.PropertyTagExifUserComment));
+					ExposureTime = Convert.ToDouble(sourceMetadata.GetQuery(@"System.Photo.ExposureTime"));
+					FNumber = Convert.ToDouble(sourceMetadata.GetQuery(@"System.Photo.FNumber"));
+					FocalLength = Convert.ToDouble(sourceMetadata.GetQuery(@"System.Photo.FocalLength"));
+					ISO = Convert.ToInt16(sourceMetadata.GetQuery(@"System.Photo.ISOSpeed"));
+					MeteringMode = Convert.ToInt16(sourceMetadata.GetQuery(@"System.Photo.MeteringMode"));
+					ExposureProgram = Convert.ToInt16(sourceMetadata.GetQuery(@"System.Photo.ProgramMode"));					
+					WhiteBalance = Convert.ToInt16(sourceMetadata.GetQuery(@"System.Photo.WhiteBalance"));
+					Flash = Utility.NumberToEnum<ExifFlash>(Convert.ToInt16(sourceMetadata.GetQuery(@"System.Photo.Flash"))); 
+					
+					People = new List<RismPerson>();
 
 					// Check there is a RegionInfo
 					if (sourceMetadata.ContainsQuery(microsoftRegions))
@@ -212,6 +258,8 @@ namespace RismPhotos
 								if (regionMetadata.ContainsQuery(microsoftPersonDisplayName) &&
 									regionMetadata.ContainsQuery(microsoftRectangle))
 								{
+									People.Add(new RismPerson(regionMetadata.GetQuery(microsoftPersonDisplayName).ToString(),
+															  regionMetadata.GetQuery(microsoftRectangle).ToString()));
 									Console.WriteLine(regionMetadata.GetQuery(microsoftRectangle).ToString());
 									Console.WriteLine(regionMetadata.GetQuery(microsoftPersonDisplayName).ToString());
 								}
@@ -223,50 +271,7 @@ namespace RismPhotos
 			}
 		}
 
-		/*
-		public void ReadWLPGRegions1(string sourceFile)
-		{
-			// Declare a bunch of XMP paths (see my last blog for details) 
-			string microsoftRegions = @"/xmp/MP:RegionInfo/MPRI:Regions";
-			string microsoftPersonDisplayName = @"/MPReg:PersonDisplayName";
-			string microsoftRectangle = @"/MPReg:Rectangle";
-			BitmapCreateOptions createOptions = BitmapCreateOptions.PreservePixelFormat | BitmapCreateOptions.IgnoreColorProfile;
-			using (Stream sourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read))
-			{
-				BitmapDecoder sourceDecoder = BitmapDecoder.Create(sourceStream, createOptions, BitmapCacheOption.None);
-				// Check source has valid frames 
-				if (sourceDecoder.Frames[0] != null && sourceDecoder.Frames[0].Metadata != null)
-				{
-					BitmapMetadata sourceMetadata = sourceDecoder.Frames[0].Metadata as BitmapMetadata;
-					// Check there is a RegionInfo 
-					if (sourceMetadata.ContainsQuery(microsoftRegions))
-					{
-						BitmapMetadata regionsMetadata = sourceMetadata.GetQuery(microsoftRegions) as BitmapMetadata;
-						// Loop through each Region 
-						foreach (string regionQuery in regionsMetadata)
-						{
-							string regionFullQuery = microsoftRegions + regionQuery;
-							// Query for all the data for this region 
-							BitmapMetadata regionMetadata = sourceMetadata.GetQuery(regionFullQuery) as BitmapMetadata;
-							if (regionMetadata != null)
-							{
-								if (regionMetadata.ContainsQuery(microsoftPersonDisplayName))
-								{
-									Console.WriteLine("PersonDisplayName:\t"
-									+ regionMetadata.GetQuery(WpfProperties.MicrosoftPersonDisplayName).ToString());
-								}
-								if (regionMetadata.ContainsQuery(microsoftRectangle))
-								{
-									Console.WriteLine("Rectangle:\t\t"
-									+ regionMetadata.GetQuery(WpfProperties.MicrosoftRectangle).ToString());
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		*/
+
 
 		public RismExif(Image sourceImage)
 		{
@@ -278,7 +283,6 @@ namespace RismPhotos
 			YResolution = GetDouble(Property(PropertyTagId.PropertyTagYResolution));
 			ResolutionUnit = GetResolutionUnit(Property(PropertyTagId.PropertyTagResolutionUnit));
 			DateTaken = GetDateTaken(sourceImage);
-			//Description = GetString(Property(PropertyTagId.PropertyTagImageDescription));
 			CameraMake = GetString(Property(PropertyTagId.PropertyTagEquipMake));
 			CameraModel = GetString(Property(PropertyTagId.PropertyTagEquipModel));
 			SoftwareUsed = GetString(Property(PropertyTagId.PropertyTagSoftwareUsed));
@@ -386,7 +390,7 @@ namespace RismPhotos
 			{
 				return ExifOrientation.Unknown;
 			}
-			return NumberToEnum<ExifOrientation>((int)GetInt16(item));
+			return Utility.NumberToEnum<ExifOrientation>((int)GetInt16(item));
 		}
 
 		private ExifUnit GetResolutionUnit(PropertyItem item)
@@ -395,7 +399,7 @@ namespace RismPhotos
 			{
 				return ExifUnit.Undefined;
 			}
-			return NumberToEnum<ExifUnit>((int)GetInt16(item));
+			return Utility.NumberToEnum<ExifUnit>((int)GetInt16(item));
 		}
 
 		private ExifFlash GetFlash(PropertyItem item)
@@ -404,7 +408,7 @@ namespace RismPhotos
 			{
 				return ExifFlash.No;
 			}
-			return NumberToEnum<ExifFlash>((int)GetInt16(item));
+			return Utility.NumberToEnum<ExifFlash>((int)GetInt16(item));
 		}
 
 		private ExifGpsLatitudeRef GetGpsLatitudeRef(PropertyItem item)
@@ -413,7 +417,7 @@ namespace RismPhotos
 			{
 				return ExifGpsLatitudeRef.Unknown;
 			}
-			return NumberToEnum<ExifGpsLatitudeRef>((int)GetInt16(item));
+			return Utility.NumberToEnum<ExifGpsLatitudeRef>((int)GetInt16(item));
 		}
 
 		private ExifGpsLongitudeRef GetGpsLongitudeRef(PropertyItem item)
@@ -422,13 +426,9 @@ namespace RismPhotos
 			{
 				return ExifGpsLongitudeRef.Unknown;
 			}
-			return NumberToEnum<ExifGpsLongitudeRef>((int)GetInt16(item));
+			return Utility.NumberToEnum<ExifGpsLongitudeRef>((int)GetInt16(item));
 		}
 
-		private T NumberToEnum<T>(int number)
-		{
-			return (T)Enum.ToObject(typeof(T), number);
-		}
 
 		private string GetString(PropertyItem item)
 		{

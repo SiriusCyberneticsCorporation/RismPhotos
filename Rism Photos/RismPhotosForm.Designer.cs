@@ -44,9 +44,8 @@
 			this.x128ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.x256ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.TreeViewImageList = new System.Windows.Forms.ImageList(this.components);
-			this.MainResizableTableLayoutPanel = new RismPhotos.ResizableTableLayoutPanel();
+			this.MainResizableTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
 			this.PhotosTreeView = new System.Windows.Forms.TreeView();
-			this.ThumbnailList = new RismPhotos.ThumbnailListViewUserControl();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.PhotosMenuStrip.SuspendLayout();
 			this.PhotosToolStrip.SuspendLayout();
@@ -117,49 +116,49 @@
 			// x24ToolStripMenuItem
 			// 
 			this.x24ToolStripMenuItem.Name = "x24ToolStripMenuItem";
-			this.x24ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x24ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x24ToolStripMenuItem.Text = "24 x 24";
 			this.x24ToolStripMenuItem.Click += new System.EventHandler(this.x24ToolStripMenuItem_Click);
 			// 
 			// x32ToolStripMenuItem
 			// 
 			this.x32ToolStripMenuItem.Name = "x32ToolStripMenuItem";
-			this.x32ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x32ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x32ToolStripMenuItem.Text = "32 x 32";
 			this.x32ToolStripMenuItem.Click += new System.EventHandler(this.x32ToolStripMenuItem_Click);
 			// 
 			// x48ToolStripMenuItem
 			// 
 			this.x48ToolStripMenuItem.Name = "x48ToolStripMenuItem";
-			this.x48ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x48ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x48ToolStripMenuItem.Text = "48 x 48";
 			this.x48ToolStripMenuItem.Click += new System.EventHandler(this.x48ToolStripMenuItem_Click);
 			// 
 			// x64ToolStripMenuItem
 			// 
 			this.x64ToolStripMenuItem.Name = "x64ToolStripMenuItem";
-			this.x64ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x64ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x64ToolStripMenuItem.Text = "64 x 64";
 			this.x64ToolStripMenuItem.Click += new System.EventHandler(this.x64ToolStripMenuItem_Click);
 			// 
 			// x96ToolStripMenuItem
 			// 
 			this.x96ToolStripMenuItem.Name = "x96ToolStripMenuItem";
-			this.x96ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x96ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x96ToolStripMenuItem.Text = "96 x 96";
 			this.x96ToolStripMenuItem.Click += new System.EventHandler(this.x96ToolStripMenuItem_Click);
 			// 
 			// x128ToolStripMenuItem
 			// 
 			this.x128ToolStripMenuItem.Name = "x128ToolStripMenuItem";
-			this.x128ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x128ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x128ToolStripMenuItem.Text = "128 x 128";
 			this.x128ToolStripMenuItem.Click += new System.EventHandler(this.x128ToolStripMenuItem_Click);
 			// 
 			// x256ToolStripMenuItem
 			// 
 			this.x256ToolStripMenuItem.Name = "x256ToolStripMenuItem";
-			this.x256ToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+			this.x256ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.x256ToolStripMenuItem.Text = "256 x 256";
 			this.x256ToolStripMenuItem.Click += new System.EventHandler(this.x256ToolStripMenuItem_Click);
 			// 
@@ -178,7 +177,6 @@
 			this.MainResizableTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.MainResizableTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
 			this.MainResizableTableLayoutPanel.Controls.Add(this.PhotosTreeView, 0, 0);
-			this.MainResizableTableLayoutPanel.Controls.Add(this.ThumbnailList, 1, 0);
 			this.MainResizableTableLayoutPanel.Controls.Add(this.panel1, 2, 0);
 			this.MainResizableTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.MainResizableTableLayoutPanel.Location = new System.Drawing.Point(0, 49);
@@ -186,7 +184,6 @@
 			this.MainResizableTableLayoutPanel.RowCount = 1;
 			this.MainResizableTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.MainResizableTableLayoutPanel.Size = new System.Drawing.Size(907, 473);
-			this.MainResizableTableLayoutPanel.SplitterSize = 6;
 			this.MainResizableTableLayoutPanel.TabIndex = 3;
 			// 
 			// PhotosTreeView
@@ -203,16 +200,6 @@
 			this.PhotosTreeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.PhotosTreeView_BeforeExpand);
 			this.PhotosTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.PhotosTreeView_AfterSelect);
 			this.PhotosTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.PhotosTreeView_NodeMouseClick);
-			// 
-			// ThumbnailList
-			// 
-			this.ThumbnailList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.ThumbnailList.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.ThumbnailList.Location = new System.Drawing.Point(253, 3);
-			this.ThumbnailList.Name = "ThumbnailList";
-			this.ThumbnailList.Size = new System.Drawing.Size(551, 467);
-			this.ThumbnailList.TabIndex = 3;
-			this.ThumbnailList.ThumbnailSize = new System.Drawing.Size(96, 96);
 			// 
 			// panel1
 			// 
@@ -256,7 +243,7 @@
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addPhotoFolderToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-		private ResizableTableLayoutPanel MainResizableTableLayoutPanel;
+		private System.Windows.Forms.TableLayoutPanel MainResizableTableLayoutPanel;
 		private ThumbnailListViewUserControl ThumbnailList;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
 		private System.Windows.Forms.ToolStripMenuItem x24ToolStripMenuItem;

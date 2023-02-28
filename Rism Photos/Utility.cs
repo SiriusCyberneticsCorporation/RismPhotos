@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RismPhotos.DataClasses;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -9,52 +10,50 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-//using FreeImageAPI;
-using System.Windows.Media.Imaging;
-
 namespace RismPhotos
 {
 	public class Utility
 	{
+		public static T NumberToEnum<T>(int number)
+		{
+			return (T)Enum.ToObject(typeof(T), number);
+		}
+
 		public static Image ImageFromByteArray(byte[] byteArrayIn)
 		{
 			return (Bitmap)((new ImageConverter()).ConvertFrom(byteArrayIn));
 		}
 
-		public static byte[] ImageToByteArray(Image image)
+		public static byte[] ImageToByteArray(Image sourceImage)
 		{
-			if(image == null)
+			if(sourceImage == null)
 			{
 				return null;
 			}
-			ImageConverter _imageConverter = new ImageConverter();
-			byte[] xByte = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
-			return xByte;
-			/*
-			using (var ms = new MemoryStream())
-			{
-				image.Save(ms, image.RawFormat);
-				return ms.ToArray();
-			}
-			*/
+			ImageConverter converter = new ImageConverter();
+			byte[] byteArrayOut = (byte[])converter.ConvertTo(sourceImage, typeof(byte[]));
+
+			return byteArrayOut;
 		}
 
 		/// <summary>
 		/// Creates a thumbnail from the given image.
 		/// </summary>
-		/// <param name="image">The source image.</param>
-		/// <param name="size">Requested image size.</param>
+		/// <param name="sourceImage">The source image.</param>
+		/// <param name="thumbnailSize">Requested image size.</param>
 		/// <param name="backColor">Background color of returned thumbnail.</param>
 		/// <returns>The image from the given file or null if an error occurs.</returns>
-		internal static Image ThumbnailFromImage(Image image, Size size, System.Drawing.Color backColor)
+		internal static Image ThumbnailFromImage(Image sourceImage, Size thumbnailSize, System.Drawing.Color backColor)
 		{
-			if (size.Width <= 0 || size.Height <= 0)
+			if (thumbnailSize.Width <= 0 || thumbnailSize.Height <= 0)
+			{
 				throw new ArgumentException();
+			}
 
 			Image thumb = null;
 			try
 			{
-				Size scaled = GetSizedImageBounds(image, size);
+				Size scaled = GetSizedImageBounds(sourceImage, thumbnailSize);
 				thumb = new Bitmap(scaled.Width, scaled.Height);
 				using (Graphics g = Graphics.FromImage(thumb))
 				{
@@ -66,7 +65,7 @@ namespace RismPhotos
 						g.FillRectangle(System.Drawing.Brushes.White, 0, 0, scaled.Width, scaled.Height);
 					}
 
-					g.DrawImage(image, 0, 0, scaled.Width, scaled.Height);
+					g.DrawImage(sourceImage, 0, 0, scaled.Width, scaled.Height);
 				}
 			}
 			catch
@@ -82,185 +81,61 @@ namespace RismPhotos
 		}
 
 		
-		System.Drawing.Bitmap MakeNet2BitmapFromWPFBitmapSource(BitmapSource src)
+		public static Bitmap CreateThumbnail(string filename, int thumbWidth, int thumbHeight)
 		{
+			Bitmap thumgnail = null;
 			try
 			{
-				MemoryStream TransportStream = new MemoryStream();
-				BitmapEncoder enc = new BmpBitmapEncoder();
-				enc.Frames.Add(BitmapFrame.Create(src));
-				enc.Save(TransportStream);
-				return new System.Drawing.Bitmap(TransportStream);
-			}
-			catch
-			{
-				//MessageBox.Show("failed"); 
-				return null; 
-			}
-		}
+				int newWidth = 0;
+				int newHeight = 0;
+				double widthHeightRatio = 1;
+				Bitmap souceBitmap = new Bitmap(filename);
 
-		/*
-		public static System.Drawing.Bitmap BitmapSourceToBitmap2(BitmapSource srs)
-		{
-			int width = srs.PixelWidth;
-			int height = srs.PixelHeight;
-			int stride = width * ((srs.Format.BitsPerPixel + 7) / 8);
-			IntPtr ptr = IntPtr.Zero;
-			try
-			{
-				ptr = Marshal.AllocHGlobal(height * stride);
-				srs.CopyPixels(new Int32Rect(0, 0, width, height), ptr, height * stride, stride);
-				using (var btm = new System.Drawing.Bitmap(width, height, stride, System.Drawing.Imaging.PixelFormat.Format1bppIndexed, ptr))
+				// If the image is smaller than the required thumbnail then just return it.
+				if (souceBitmap.Width < thumbWidth && souceBitmap.Height < thumbHeight)
 				{
-					// Clone the bitmap so that we can dispose it and
-					// release the unmanaged memory at ptr
-					return new System.Drawing.Bitmap(btm);
+					return souceBitmap;
 				}
-			}
-			finally
-			{
-				if (ptr != IntPtr.Zero)
-					Marshal.FreeHGlobal(ptr);
-			}
-		}
-		*/
 
-		private static BitmapSource GetThumbnail(string filename)
-		{
-			BitmapSource ret = null;
-			BitmapMetadata meta = null;
-			double angle = 0;
-
-			try
-			{
-				//tentative de creation du thumbnail via Bitmap frame : très rapide et très peu couteux en mémoire !
-				BitmapFrame frame = BitmapFrame.Create(new Uri(filename),BitmapCreateOptions.DelayCreation,BitmapCacheOption.None);
-
-				if (frame.Thumbnail == null) //echec, on tente avec BitmapImage (plus lent et couteux en mémoire)
+				if (souceBitmap.Width > souceBitmap.Height)
 				{
-					BitmapImage image = new BitmapImage();
-					image.DecodePixelHeight = 128; 
-					image.BeginInit();
-					image.UriSource = new Uri(filename);
-					image.CacheOption = BitmapCacheOption.OnLoad;
-					image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile; //important pour les performances
-					image.EndInit();
-
-					if (image.CanFreeze) //pour éviter les memory leak
-						image.Freeze();
-
-					ret = image;
+					widthHeightRatio = (double)thumbWidth / (double)souceBitmap.Width;
+					newWidth = thumbWidth;
+					newHeight = (int)(souceBitmap.Height* widthHeightRatio);
 				}
 				else
 				{
-					//récupération des métas de l'image
-					meta = frame.Metadata as BitmapMetadata;
-					ret = frame.Thumbnail;
+					widthHeightRatio = (double)thumbHeight / (double)souceBitmap.Height;
+					newWidth = (int)(souceBitmap.Width * widthHeightRatio);
+					newHeight = thumbHeight;
 				}
 
-				/*
-				if ((meta != null) && (ret != null)) //si on a des meta, tentative de récupération de l'orientation
+				thumgnail = new Bitmap(newWidth, newHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+				Graphics g = Graphics.FromImage(thumgnail);
+
+				g.CompositingQuality = CompositingQuality.HighSpeed;
+				g.SmoothingMode = SmoothingMode.HighSpeed;
+				g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				g.PixelOffsetMode = PixelOffsetMode.Half;
+				g.CompositingMode = CompositingMode.SourceCopy;
+
+				g.FillRectangle(System.Drawing.Brushes.White, 0, 0, newWidth, newHeight);
+
+				g.DrawImage(souceBitmap, 0, 0, newWidth, newHeight);
+
+				foreach (PropertyItem item in souceBitmap.PropertyItems)
 				{
-					if (meta.GetQuery("/app1/ifd/{ushort=274}") != null)
-					{
-						orientation = (ExifOrientations)Enum.Parse(typeof(ExifOrientations), meta.GetQuery("/app1/ifd/{ushort=274}").ToString());
-					}
-
-					switch (orientation)
-					{
-						case ExifOrientations.Rotate90:
-							angle = -90;
-							break;
-						case ExifOrientations.Rotate180:
-							angle = 180;
-							break;
-						case ExifOrientations.Rotate270:
-							angle = 90;
-							break;
-					}
-
-					if (angle != 0) //on doit effectuer une rotation de l'image
-					{
-						ret = new TransformedBitmap(ret.Clone(), new RotateTransform(angle));
-						ret.Freeze();
-					}
+					thumgnail.SetPropertyItem(item);
 				}
-				*/
-			}
-			catch (Exception ex)
-			{
-			}
-
-			return ret;
-		}
-
-		public static Bitmap BitmapFromSource(BitmapSource bitmapsource)
-		{
-			Bitmap bitmap;
-			using (var outStream = new MemoryStream())
-			{
-				BitmapEncoder enc = new BmpBitmapEncoder();
-				enc.Frames.Add(BitmapFrame.Create(bitmapsource));
-				enc.Save(outStream);
-				bitmap = new Bitmap(outStream);
-			}
-			return bitmap;
-		}
-
-		public static Bitmap CreateThumbnail(string lcFilename, int lnWidth, int lnHeight)
-		{
-
-			System.Drawing.Bitmap bmpOut = null;
-			try
-			{
-				Bitmap loBMP = new Bitmap(lcFilename);
-				ImageFormat loFormat = loBMP.RawFormat;
-
-				decimal lnRatio;
-				int lnNewWidth = 0;
-				int lnNewHeight = 0;
-
-				//*** If the image is smaller than a thumbnail just return it
-				if (loBMP.Width < lnWidth && loBMP.Height < lnHeight)
-					return loBMP;
-
-
-				if (loBMP.Width > loBMP.Height)
-				{
-					lnRatio = (decimal)lnWidth / loBMP.Width;
-					lnNewWidth = lnWidth;
-					decimal lnTemp = loBMP.Height * lnRatio;
-					lnNewHeight = (int)lnTemp;
-				}
-				else
-				{
-					lnRatio = (decimal)lnHeight / loBMP.Height;
-					lnNewHeight = lnHeight;
-					decimal lnTemp = loBMP.Width * lnRatio;
-					lnNewWidth = (int)lnTemp;
-				}
-
-				// System.Drawing.Image imgOut = 
-				//      loBMP.GetThumbnailImage(lnNewWidth,lnNewHeight,
-				//                              null,IntPtr.Zero);
-
-				// *** This code creates cleaner (though bigger) thumbnails and properly
-				// *** and handles GIF files better by generating a white background for
-				// *** transparent images (as opposed to black)
-				bmpOut = new Bitmap(lnNewWidth, lnNewHeight);
-				Graphics g = Graphics.FromImage(bmpOut);
-				g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-				g.FillRectangle(System.Drawing.Brushes.White, 0, 0, lnNewWidth, lnNewHeight);
-				g.DrawImage(loBMP, 0, 0, lnNewWidth, lnNewHeight);
-
-				loBMP.Dispose();
+				souceBitmap.Dispose();
 			}
 			catch
 			{
 				return null;
 			}
 
-			return bmpOut;
+			return thumgnail;
 		}
 
 		/// <summary>
@@ -270,14 +145,12 @@ namespace RismPhotos
 		/// <param name="thumbnailSize">Requested image size.</param>
 		/// <param name="backColor">Background color of returned thumbnail.</param>
 		/// <returns>The image from the given file or null if an error occurs.</returns>
-		internal static Image ThumbnailFromFile(string filename, Size thumbnailSize, out byte[] imageBytes, out RismExif exifData)
+		internal static Image ThumbnailFromFile(string filename, Size thumbnailSize, out byte[] imageBytes, out PhotoMetadata exifData)
 		{
 			if (thumbnailSize.Width <= 0 || thumbnailSize.Height <= 0)
 			{
 				throw new ArgumentException();
 			}
-
-			//RismExif.ReadWLPGRegions(filename);
 
 			Image source = null;
 			Image thumb = null;
@@ -287,70 +160,18 @@ namespace RismPhotos
 			try
 			{
 				string speeed = string.Empty;
-
-				
-				/*
-				MemoryStream ms = new MemoryStream();
-				System.Windows.Media.Imaging.BmpBitmapEncoder bbe = new BmpBitmapEncoder();
-				bbe.Frames.Add(BitmapFrame.Create(new Uri(image.Source.ToString(), UriKind.RelativeOrAbsolute)));
-				bbe.Save(ms);
-				thumb = System.Drawing.Image.FromStream(ms);
-				*/
-				/*
-				string speeed = string.Empty;
-				System.Diagnostics.Stopwatch freeWatch = System.Diagnostics.Stopwatch.StartNew();
-				FreeImageBitmap fib = new FreeImageBitmap(filename);
-				Size sz1 = GetProportionalSize(thumbnailSize, fib.Size);
-				fib.Rescale(sz1, FREE_IMAGE_FILTER.FILTER_BICUBIC);
-				thumb = (Image)fib;
-				exifData = new RismExif(thumb);
-				imageBytes = Utility.ImageToByteArray(thumb);
-				freeWatch.Stop();
-				Console.WriteLine(freeWatch.ElapsedMilliseconds);
-				speeed += "Free: " + freeWatch.ElapsedMilliseconds.ToString();
-				*/
-
-				/*
+											
 				System.Diagnostics.Stopwatch csWatch = System.Diagnostics.Stopwatch.StartNew();
-				using (FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-				{
-					using (Image img = Image.FromStream(stream, true, false))
-					{
-						Size sz = GetProportionalSize(thumbnailSize, img.Size);
-						thumb = new Bitmap(sz.Width, sz.Height);
-						using (Graphics g = Graphics.FromImage(thumb))
-						{
-							g.Clear(System.Drawing.Color.White);
-							g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-							g.SmoothingMode = SmoothingMode.HighQuality;
-							g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-							g.CompositingQuality = CompositingQuality.HighQuality;
-							g.DrawImage(img, new Rectangle(Point.Empty, sz), new Rectangle(Point.Empty, img.Size), GraphicsUnit.Pixel);
-						}
 
-						exifData = new RismExif(img);
-						imageBytes = Utility.ImageToByteArray(thumb);
-					}
-				}
 				csWatch.Stop();
 				Console.WriteLine(csWatch.ElapsedMilliseconds);
-				speeed += ", CS: " + csWatch.ElapsedMilliseconds.ToString();
-				*/
+				speeed += ", CS: " + csWatch.ElapsedMilliseconds.ToString();				
 
 				System.Diagnostics.Stopwatch freeWatch = System.Diagnostics.Stopwatch.StartNew();
 
-
-				//BitmapSource fred = GetThumbnail(filename);
-				//thumb = BitmapFromSource(fred);
-
 				thumb = CreateThumbnail(filename, 256, 256);
-
-				/*
-				Image tempimg = Image.FromFile(filename);
-				Size sz = GetProportionalSize(thumbnailSize, tempimg.Size);
-				thumb = tempimg.GetThumbnailImage(sz.Width, sz.Height, null, IntPtr.Zero);
-				tempimg.Dispose();
-				*/
+				imageBytes = Utility.ImageToByteArray(thumb);
+				exifData = new PhotoMetadata(filename);
 
 				freeWatch.Stop();
 				Console.WriteLine(freeWatch.ElapsedMilliseconds);

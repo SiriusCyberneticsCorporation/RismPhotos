@@ -21,8 +21,8 @@ namespace RismPhotos
 		private object m_photoListLock = new object();
 		private Folder m_currentFolder = null;
 		private LiteDatabase m_photoDatabase = null;
-		private LiteCollection<Folder> m_photoFolders = null;
-		private LiteCollection<Photo> m_photos = null;
+		private ILiteCollection<Folder> m_photoFolders = null;
+		private ILiteCollection<Photo> m_photos = null;
 		private List<Folder> m_foldersToUpdate = new List<Folder>();
 
 		public RismPhotosForm()
@@ -70,7 +70,7 @@ namespace RismPhotos
 				{
 					existingPhoto.DateModified = newPhoto.DateModified;
 					existingPhoto.ThumbnailBytes = newPhoto.ThumbnailBytes;
-					existingPhoto.ExifData = newPhoto.ExifData;
+					existingPhoto.Metadata = newPhoto.Metadata;
 					m_photos.Update(existingPhoto);
 				}
 			}
@@ -121,6 +121,8 @@ namespace RismPhotos
 		{
 			try
 			{
+				PhotosTreeView.BeginUpdate();
+				node.Nodes.Clear();
 				node.ImageIndex = 1;
 				DirectoryInfo dirs = new DirectoryInfo(node.Tag.ToString());
 				foreach (DirectoryInfo dir in dirs.GetDirectories())
@@ -146,6 +148,9 @@ namespace RismPhotos
 					node.Nodes.Add(newnode);
 					newnode.Nodes.Add("*");
 				}
+				PhotosTreeView.EndUpdate();
+				PhotosTreeView.Sort();
+				node.Expand();
 			}
 			catch (Exception ex)
 			{
@@ -157,7 +162,6 @@ namespace RismPhotos
 		{
 			if (e.Node.Nodes[0].Text == "*")
 			{
-				e.Node.Nodes.Clear();
 				FillChildFolderNodes(e.Node);
 			}
 		}
@@ -172,28 +176,32 @@ namespace RismPhotos
 			m_currentFolder = m_photoFolders.FindOne(p => p.FolderName == e.Node.Tag.ToString());
 
 			ThumbnailList.ClearList();
-			//ThumbnailList.SuspendListUpdate();
 			foreach (string fileType in new string[] { "*.jpg", "*.jpeg", "*.png", "*.raw" })
 			{
-				//ThumbnailList.AddPhotos(FastDirectoryEnumerator.EnumerateFiles(e.Node.Tag.ToString(), fileType));
 				foreach (FileData photoFile in FastDirectoryEnumerator.EnumerateFiles(e.Node.Tag.ToString(), fileType))
 				{
-					Photo existingPhoto = null;
-					lock(m_photoListLock)
-					{
-						existingPhoto = m_photos.FindOne(p => p.Filename == photoFile.Path);
-					}
-					if (existingPhoto != null && existingPhoto.ThumbnailBytes != null)
-					{
-						ThumbnailList.AddPhoto(existingPhoto);
-					}
-					else
+					if (photoFile.Name == "SAM_1286.JPG" || photoFile.Name == "IMG_7439.JPG")
 					{
 						ThumbnailList.AddPhoto(photoFile);
 					}
+					else
+					{
+						Photo existingPhoto = null;
+						lock (m_photoListLock)
+						{
+							existingPhoto = m_photos.FindOne(p => p.Filename == photoFile.Path);
+						}
+						if (existingPhoto != null && existingPhoto.ThumbnailBytes != null)
+						{
+							ThumbnailList.AddPhoto(existingPhoto);
+						}
+						else
+						{
+							ThumbnailList.AddPhoto(photoFile);
+						}
+					}
 				}
 			}
-			//ThumbnailList.ResumeListUpdate();
 			ThumbnailList.FindThumbnails();
 		}
 
